@@ -60,7 +60,7 @@
 @interface CubeController () <UIScrollViewDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary *controllers;
-@property (nonatomic, strong) UIScrollView *scrollView;
+//@property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, assign) NSInteger numberOfViewControllers;
 @property (nonatomic, assign) CGFloat scrollOffset;
 @property (nonatomic, assign) CGFloat previousOffset;
@@ -75,27 +75,29 @@
 {
     [super viewDidLoad];
     
-    self.scrollView.frame = self.view.bounds;
-    [self.view addSubview:self.scrollView];
+    //    self.scrollView.frame = self.view.bounds;
+    //    [self.view addSubview:self.scrollView];
+    
+    _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
     [self reloadData];
 }
 
-- (UIScrollView *)scrollView
-{
-    if (!_scrollView)
-    {
-        CGRect frame = [self isViewLoaded]? self.view.bounds: [UIScreen mainScreen].bounds;
-        _scrollView = [[UIScrollView alloc] initWithFrame:frame];
-        _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        _scrollView.showsHorizontalScrollIndicator = NO;
-        _scrollView.pagingEnabled = YES;
-        _scrollView.directionalLockEnabled = YES;
-        _scrollView.autoresizesSubviews = NO;
-        _scrollView.delegate = self;
-    }
-    return _scrollView;
-}
+//- (UIScrollView *)scrollView
+//{
+//    if (!_scrollView)
+//    {
+//        CGRect frame = [self isViewLoaded]? self.view.bounds: [UIScreen mainScreen].bounds;
+//        _scrollView = [[UIScrollView alloc] initWithFrame:frame];
+//        _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+//        _scrollView.showsHorizontalScrollIndicator = NO;
+//        _scrollView.pagingEnabled = YES;
+//        _scrollView.directionalLockEnabled = YES;
+//        _scrollView.autoresizesSubviews = NO;
+//        _scrollView.delegate = self;
+//    }
+//    return _scrollView;
+//}
 
 - (void)setWrapEnabled:(BOOL)wrapEnabled
 {
@@ -128,7 +130,7 @@
     {
         offset = MAX(0, MIN(offset, _numberOfViewControllers - 1));
     }
-    [_scrollView setContentOffset:CGPointMake(self.view.bounds.size.width * offset, 0) animated:animated];
+    [_scrollView setContentOffset:CGPointMake(_scrollView.bounds.size.width * offset, 0) animated:animated];
 }
 
 - (void)scrollForwardAnimated:(BOOL)animated
@@ -196,7 +198,7 @@
     _previousOffset = offset;
     
     _suppressScrollEvent = YES;
-    _scrollView.contentOffset = CGPointMake(self.view.bounds.size.width * offset, 0.0f);
+    _scrollView.contentOffset = CGPointMake(_scrollView.bounds.size.width * offset, 0.0f);
     _suppressScrollEvent = NO;
 }
 
@@ -221,9 +223,9 @@
         if (angle != 0.0f)
         {
             transform.m34 = -1.0/500;
-            transform = CATransform3DTranslate(transform, 0, 0, -self.view.bounds.size.width / 2.0f);
+            transform = CATransform3DTranslate(transform, 0, 0, -_scrollView.bounds.size.width / 2.0f);
             transform = CATransform3DRotate(transform, -angle, 0, 1, 0);
-            transform = CATransform3DTranslate(transform, 0, 0, self.view.bounds.size.width / 2.0f);
+            transform = CATransform3DTranslate(transform, 0, 0, _scrollView.bounds.size.width / 2.0f);
         }
         
         CGPoint contentOffset = CGPointZero;
@@ -232,8 +234,8 @@
         {
             contentOffset = ((UIScrollView *)controller.view).contentOffset;
         }
-        controller.view.bounds = self.view.bounds;
-        controller.view.center = CGPointMake(self.view.bounds.size.width / 2.0f + _scrollView.contentOffset.x, self.view.bounds.size.height / 2.0f);
+        controller.view.bounds = CGRectMake(0, 0, _scrollView.bounds.size.width, _scrollView.bounds.size.height);
+        controller.view.center = CGPointMake(_scrollView.bounds.size.width / 2.0f + _scrollView.contentOffset.x, _scrollView.bounds.size.height / 2.0f);
         controller.view.layer.transform = transform;
         if (isScrollView)
         {
@@ -302,7 +304,7 @@
         NSInteger pages = _numberOfViewControllers;
         if (_wrapEnabled && _numberOfViewControllers > 1) pages += 2;
         _suppressScrollEvent = YES;
-        _scrollView.contentSize = CGSizeMake(self.view.bounds.size.width * pages, self.view.bounds.size.height);
+        _scrollView.contentSize = CGSizeMake(_scrollView.bounds.size.width * pages, _scrollView.bounds.size.height);
         _suppressScrollEvent = NO;
         [self updateContentOffset];
         [self loadUnloadControllers];
@@ -316,7 +318,7 @@
     if (!_suppressScrollEvent)
     {
         //update scroll offset
-        CGFloat offset = scrollView.contentOffset.x / self.view.bounds.size.width;
+        CGFloat offset = scrollView.contentOffset.x / _scrollView.bounds.size.width;
         _scrollOffset += (offset - _previousOffset);
         if (_wrapEnabled)
         {

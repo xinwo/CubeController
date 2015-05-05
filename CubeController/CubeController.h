@@ -54,7 +54,7 @@
 
 @property (nonatomic, weak_delegate) IBOutlet id<CubeControllerDataSource> dataSource;
 @property (nonatomic, weak_delegate) IBOutlet id<CubeControllerDelegate> delegate;
-@property (nonatomic, readonly) UIScrollView *scrollView;
+@property (nonatomic, weak_delegate) IBOutlet UIScrollView *scrollView;
 @property (nonatomic, readonly) NSInteger numberOfViewControllers;
 @property (nonatomic, assign) NSInteger currentViewControllerIndex;
 @property (nonatomic, getter = isWrapEnabled) BOOL wrapEnabled;
